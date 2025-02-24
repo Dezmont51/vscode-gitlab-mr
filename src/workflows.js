@@ -830,6 +830,7 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
 
             const successMessage = message(`MR !${mr.iid} 创建成功。`);
             const successButton = '打开 MR';
+            const copyButton = '复制链接';
 
             buildStatus.dispose();
             vscode.window.setStatusBarMessage(successMessage, STATUS_TIMEOUT);
@@ -841,12 +842,16 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
                 return vscode.window.showInformationMessage(successMessage);
             }
 
-            return vscode.window.showInformationMessage(successMessage, successButton).then(selected => {
+            return vscode.window.showInformationMessage(successMessage, successButton, copyButton).then(selected => {
                 switch (selected) {
-                    case successButton: {
+                    case successButton:
                         vscode.env.openExternal(vscode.Uri.parse(mrWebUrl));
                         break;
-                    }
+                    case copyButton:
+                        vscode.env.clipboard.writeText(mr.web_url).then(() => {
+                            vscode.window.showInformationMessage(message('链接已复制到剪贴板'));
+                        });
+                        break;
                 }
             });
         })

@@ -24,4 +24,5 @@ jobs:
           npm install
           npm i --save-dev esbuild
           npm install -g @vscode/vsce
+          mkdir bin
           vsce package -o ./bin/vscode-gitlab-mr.vsix
