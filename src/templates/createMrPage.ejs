@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'unsafe-inline' <%= webview.cspSource %>; style-src 'unsafe-inline' <%= webview.cspSource %> vscode-resource:; img-src 'self' data: <%= webview.cspSource %>;">
+    <title>创建 Merge Request</title>
+    <link rel="stylesheet" type="text/css" href="<%= styleUri %>">
+</head>
+<body class="<%= vscodeTheme %>">
+    <form id="mrForm">
+        <label for="branch">源分支:</label>
+        <input type="text" id="branch" name="branch" value="<%= currentBranch %>" required readonly>
+
+        <label for="targetBranch">目标分支:</label>
+        <div class="autocomplete-wrapper">
+            <input type="text" id="targetBranch" name="targetBranch" value="<%= lastTargetBranch %>" required placeholder="选择或输入目标分支" autocomplete="off">
+            <div id="suggestions" class="suggestions" style="display: none;"></div>
+        </div>
+
+        <label for="mrTitle">MR 标题:</label>
+        <input type="text" id="mrTitle" name="mrTitle" value="<%= lastCommitMessage %>" required>
+
+        <label for="description">描述:</label>
+        <textarea id="description" name="description" rows="4" placeholder="填写MR的描述..."></textarea>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="deleteSourceBranch" name="deleteSourceBranch" <%= removeSourceBranch ? 'checked' : '' %>>
+            <label class="checkbox-label" for="deleteSourceBranch">是否删除源分支</label>
+        </div>
+
+        <div class="checkbox-group">
+            <input type="checkbox" id="squashCommits" name="squashCommits">
+            <label class="checkbox-label" for="squashCommits">是否压缩提交</label>
+        </div>
+
+        <label for="assignees">受让人:</label>
+        <div class="autocomplete-wrapper">
+            <input type="text" id="assignees" name="assignees" placeholder="输入用户名并选择" autocomplete="off">
+            <div id="assigneeSuggestions" class="suggestions" style="display: none;"></div>
+        </div>
+        <div id="selectedAssignees">
+            <% lastAssignees.forEach(assignee => { %>
+                <span class="tag"><%= assignee.name %> <button type="button" data-id="<%= assignee.id %>">x</button></span>
+            <% }); %>
+        </div>
+
+        <label for="labels">标签:</label>
+        <div class="multi-select-wrapper">
+            <div class="custom-multi-select">
+                <div class="selected-options" id="selectedLabels" tabindex="0"> <% /* Made focusable */ %>
+                    <!-- 已选择的标签将显示在这里 -->
+                </div>
+                <div class="options-list" id="labelOptions" style="display: none;">
+                    <% storedLabels.forEach(label => { %>
+                        <div class="option-item">
+                            <input type="checkbox" id="label-<%= label.name || label %>" name="labels" value="<%= label.name || label %>">
+                            <label for="label-<%= label.name || label %>"><%= label.name || label %></label>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+            <button type="button" id="refreshLabels" class="refresh-button">刷新</button>
+        </div>
+
+        <button type="submit">提交</button>
+        <button type="button" onclick="cancel()">取消</button>
+    </form>
+
+    <script>
+        const vscode = acquireVsCodeApi();
+        const branches = <%- JSON.stringify(branches) %>;
+        const assignees = <%- JSON.stringify(lastAssignees) %>;
+            // Ensure labels are consistently objects with a 'name' property or strings
+            const labels = <%- JSON.stringify(storedLabels.map(l => typeof l === 'string' ? {name: l} : l)) %>;
+            const initialSelectedLabels = []; // Assuming no pre-selected labels for now, adjust if needed
+
+        const targetBranchInput = document.getElementById('targetBranch');
+        const suggestionsBox = document.getElementById('suggestions');
+        let currentFocus = -1;
+
+        // 简单的模糊匹配函数
+        const fuzzyMatch = (query, branch) => {
+            query = query.toLowerCase();
+            branch = branch.toLowerCase();
+            let qIndex = 0;
+            for (let i = 0; i < branch.length; i++) {
+                if (branch[i] === query[qIndex]) {
+                    qIndex++;
+                }
+                if (qIndex === query.length) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        targetBranchInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            suggestionsBox.innerHTML = '';
+            currentFocus = -1;
+            if (query.length === 0) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+            const filteredBranches = branches.filter(branch => fuzzyMatch(query, branch));
+            if (filteredBranches.length === 0) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+            filteredBranches.forEach(branch => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = branch;
+                div.addEventListener('click', () => {
+                    targetBranchInput.value = branch;
+                    suggestionsBox.style.display = 'none';
+                });
+                suggestionsBox.appendChild(div);
+            });
+            suggestionsBox.style.display = 'block';
+        });
+
+        // 键盘导航
+        targetBranchInput.addEventListener('keydown', function(e) {
+            const items = suggestionsBox.getElementsByClassName('suggestion-item');
+            if (e.key === 'ArrowDown') {
+                currentFocus++;
+                addActive(items);
+                e.preventDefault();
+            } else if (e.key === 'ArrowUp') {
+                currentFocus--;
+                addActive(items);
+                e.preventDefault();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentFocus > -1) {
+                    if (items) items[currentFocus].click();
+                }
+            }
+        });
+
+        function addActive(items) {
+            if (!items) return false;
+            removeActive(items);
+            if (currentFocus >= items.length) currentFocus = 0;
+            if (currentFocus < 0) currentFocus = items.length - 1;
+            items[currentFocus].classList.add('active');
+            // 确保当前选中的项在视野内
+            items[currentFocus].scrollIntoView({ block: 'nearest' });
+        }
+
+        function removeActive(items) {
+            for (let i = 0; i < items.length; i++) {
+                items[i].classList.remove('active');
+            }
+        }
+
+        // 点击页面其他地方隐藏建议列表
+        document.addEventListener('click', function(event) {
+            if (!targetBranchInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+        });
+
+        // 处理受让人输入和选择
+        const assigneeInput = document.getElementById('assignees');
+        const assigneeSuggestions = document.getElementById('assigneeSuggestions');
+        const selectedAssigneesContainer = document.getElementById('selectedAssignees');
+        let selectedAssignees = <%- JSON.stringify(lastAssignees) %>;
+
+        // 防止 Enter 键提交表单
+        assigneeInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+
+        // 添加防抖功能
+        let debounceTimer;
+        assigneeInput.addEventListener('input', function() {
+            const query = this.value.trim().toLowerCase();
+            assigneeSuggestions.innerHTML = '';
+            if (query.length === 0) {
+                assigneeSuggestions.style.display = 'none';
+                return;
+            }
+
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                // 发送消息请求匹配用户
+                vscode.postMessage({ command: 'fetchAssignees', query });
+            }, 500); // 延迟 0.5 秒
+        });
+
+        window.addEventListener('message', event => {
+            const message = event.data;
+            if (message.command === 'provideAssignees') {
+                assigneeSuggestions.innerHTML = '';
+                if (message.assignees.length === 0) {
+                    assigneeSuggestions.style.display = 'none';
+                    return;
+                }
+                message.assignees.forEach(assignee => {
+                    const div = document.createElement('div');
+                    div.className = 'suggestion-item';
+                    div.textContent = assignee.name + '(@' + assignee.username + ')';
+                    div.addEventListener('click', () => {
+                        selectedAssignees.push(assignee);
+                        renderSelectedAssignees();
+                        assigneeInput.value = '';
+                        assigneeSuggestions.style.display = 'none';
+                    });
+                    assigneeSuggestions.appendChild(div);
+                });
+                assigneeSuggestions.style.display = 'block';
+            } else if (message.command === 'provideLabels') {
+                const newLabels = message.labels;
+                const labelOptionsContainer = document.getElementById('labelOptions');
+                labelOptionsContainer.innerHTML = ''; // Clear existing options
+                newLabels.forEach(label => {
+                    const optionItem = document.createElement('div');
+                    optionItem.className = 'option-item';
+                    const checkboxId = 'label-' + (label.name || label);
+                    optionItem.innerHTML = `
+                        <input type="checkbox" id="${checkboxId}" name="labels" value="${label.name || label}">
+                        <label for="${checkboxId}">${label.name || label}</label>
+                    `;
+                    labelOptionsContainer.appendChild(optionItem);
+                });
+                // Re-check previously selected labels if they still exist
+                selectedLabels.forEach(sl => {
+                    const checkbox = labelOptionsContainer.querySelector('input[value="' + sl + '"]');
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+        });
+
+        // 修复删除受让人的问题
+        function renderSelectedAssignees() {
+            selectedAssigneesContainer.innerHTML = selectedAssignees.map(a => '<span class="tag">' + a.name + ' <button type="button" data-id="' + a.id + '">x</button></span>').join('');
+            attachAssigneeRemoveHandlers();
+        }
+
+        function attachAssigneeRemoveHandlers() {
+            document.querySelectorAll('#selectedAssignees button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const id = button.getAttribute('data-id');
+                    selectedAssignees = selectedAssignees.filter(a => a.id.toString() !== id); // 确保类型匹配
+                    renderSelectedAssignees();
+                });
+            });
+        }
+
+        // 处理标签选择
+        document.querySelector('.options-list').addEventListener('click', (event) => {
+            const optionItem = event.target.closest('.option-item');
+            if (!optionItem) return;
+
+            // event.preventDefault(); // 阻止默认行为, 如果点击的是label, 会阻止checkbox的默认行为
+            // event.stopPropagation(); // 阻止事件冒泡
+
+            const checkbox = optionItem.querySelector('input[type="checkbox"]');
+            if (!checkbox) return;
+
+            // If the click was directly on the checkbox, its state is already toggled.
+            // If the click was on the label or item, toggle it manually.
+            if (event.target.tagName !== 'INPUT') {
+                checkbox.checked = !checkbox.checked;
+            }
+
+            const labelValue = checkbox.value;
+            if (checkbox.checked) {
+                if (!selectedLabels.includes(labelValue)) {
+                    selectedLabels.push(labelValue);
+                }
+            } else {
+                selectedLabels = selectedLabels.filter(label => label !== labelValue);
+            }
+
+            renderSelectedLabels(); // 更新标签显示
+        });
+
+        const selectedLabelsContainer = document.getElementById('selectedLabels');
+        const labelOptions = document.getElementById('labelOptions');
+
+        // 初始化已选择的标签
+        let selectedLabels = initialSelectedLabels; // Use initial value
+
+        function renderSelectedLabels() {
+            selectedLabelsContainer.innerHTML = selectedLabels.map(label => {
+                const labelName = label.name || label; // Handle both string and object labels
+                return '<span class="tag" tabindex="0">' + // Made focusable
+                    labelName + ' <button type="button" data-value="' + labelName + '">x</button>' +
+                '</span>';
+            }).join('');
+            attachLabelRemoveHandlers();
+        }
+
+        function attachLabelRemoveHandlers() {
+            selectedLabelsContainer.querySelectorAll('button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const value = button.getAttribute('data-value');
+                    selectedLabels = selectedLabels.filter(label => (label.name || label) !== value);
+                    // 取消对应标签的勾选
+                    const checkbox = document.querySelector('input[name="labels"][value="' + value + '"]');
+                    if (checkbox) {
+                        checkbox.checked = false;
+                    }
+                    renderSelectedLabels(); // Ensure UI updates after removing a tag and unchecking
+                });
+            });
+        }
+
+        // 显示或隐藏标签选项列表
+        selectedLabelsContainer.addEventListener('click', () => {
+            labelOptions.style.display = labelOptions.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // 初始化显示已选择的标签
+        renderSelectedLabels();
+
+        // 处理标签刷新
+        document.getElementById('refreshLabels').addEventListener('click', () => {
+            vscode.postMessage({ command: 'refreshLabels' });
+        });
+
+        document.getElementById('mrForm').addEventListener('submit', event => {
+            event.preventDefault();
+            const branch = document.getElementById('branch').value.trim();
+            const targetBranch = document.getElementById('targetBranch').value.trim();
+            const mrTitle = document.getElementById('mrTitle').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const deleteSourceBranch = document.getElementById('deleteSourceBranch').checked;
+            const squashCommits = document.getElementById('squashCommits').checked;
+            const assigneeIds = selectedAssignees.map(a => a.id);
+            const labels = selectedLabels;
+            vscode.postMessage({
+                command: 'submit',
+                branch,
+                targetBranch,
+                mrTitle,
+                description,
+                deleteSourceBranch,
+                squashCommits,
+                assigneeIds,
+                labels
+            });
+        });
+
+        function cancel() {
+            vscode.postMessage({ command: 'cancel' });
+        }
+
+        // 初始化选中的受让人
+        renderSelectedAssignees();
+    </script>
+</body>
+</html>
