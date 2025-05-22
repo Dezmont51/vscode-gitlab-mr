@@ -2,11 +2,12 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' ${webview.cspSource}; style-src 'unsafe-inline' ${webview.cspSource} vscode-resource:; img-src 'self' data: ${webview.cspSource};">
+    <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'unsafe-inline' <%= webview.cspSource %>; style-src 'unsafe-inline' <%= webview.cspSource %> vscode-resource:; img-src 'self' data: <%= webview.cspSource %>;">
     <title>创建 Merge Request</title>
-    <link rel="stylesheet" type="text/css" href="${styleUri}">
+    <link rel="stylesheet" type="text/css" href="<%= styleUri %>">
 </head>
-<body class="${vscodeTheme}">
+<body class="<%= vscodeTheme %>">
     <form id="mrForm">
         <label for="branch">源分支:</label>
         <input type="text" id="branch" name="branch" value="<%= currentBranch %>" required readonly>
