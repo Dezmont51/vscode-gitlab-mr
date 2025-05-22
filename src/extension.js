@@ -2,7 +2,7 @@ const vscode = require('vscode');
 const workflows = require('./workflows');
 
 function activate(context) {
-    const openMR = vscode.commands.registerCommand('extension.openMR', workflows.openMR);
+    const openMR = vscode.commands.registerCommand('extension.openMR', () => workflows.openMR(context.extensionUri));
     const viewMR = vscode.commands.registerCommand('extension.viewMR', workflows.viewMR);
     const checkoutMR = vscode.commands.registerCommand('extension.checkoutMR', workflows.checkoutMR);
     const editMR = vscode.commands.registerCommand('extension.editMR', workflows.editMR);
