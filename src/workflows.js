@@ -113,7 +113,7 @@ const { ViewColumn } = require('vscode');
 
 // 添加一个新的函数来显示自定义表单
 // IMPORTANT: This function now needs extensionUri to be passed from where it's called (e.g., from extension.js)
-const showCreateMRForm = async (extensionUri) => {
+const showCreateMRForm = async extensionUri => {
     if (!extensionUri || !extensionUri.fsPath) { // Added a check for fsPath for safety
         vscode.window.showErrorMessage('Extension URI is not available or invalid. Cannot show MR form.');
         return;
@@ -212,7 +212,7 @@ const handleRefreshLabels = async panel => {
 
     try {
         const labels = await gitlab.listLabels();
-        // 存储标签到配置
+        // 存储完整的标签对象到配置（包含颜色信息）
         await vscode.workspace.getConfiguration('gitlab-mr').update('projectLabels', labels, vscode.ConfigurationTarget.Workspace);
         panel.webview.postMessage({ command: 'provideLabels', labels });
     } catch (error) {

@@ -22,6 +22,9 @@ module.exports = ({ url, token, repoId, repoHost, repoWebProtocol }) => {
 
     // https://docs.gitlab.com/ee/api/merge_requests.html#create-mr
     const openMr = (branchName, targetBranch, commitMessage, description, removeSourceBranch, squashCommits, assigneeIds, labels) => {
+        // 处理标签，确保获取标签名称（无论是字符串还是对象）
+        const labelNames = labels.map(label => typeof label === 'string' ? label : label.name);
+
         return gitlab.post(`/api/${apiVersion}/projects/${encodeURIComponent(repoId)}/merge_requests`, {
             source_branch: branchName,
             target_branch: targetBranch,
@@ -30,7 +33,7 @@ module.exports = ({ url, token, repoId, repoHost, repoWebProtocol }) => {
             remove_source_branch: removeSourceBranch,
             squash: squashCommits,
             assignee_ids: assigneeIds,
-            labels: labels.join(', ') // GitLab API 接受逗号分隔的标签字符串
+            labels: labelNames.join(', ') // GitLab API 接受逗号分隔的标签字符串
         })
             .then(response => response.data);
     };
@@ -81,7 +84,7 @@ module.exports = ({ url, token, repoId, repoHost, repoWebProtocol }) => {
     // https://docs.gitlab.com/ee/api/labels.html#list-project-labels
     const listLabels = () => {
         return gitlab.get(`/api/${apiVersion}/projects/${encodeURIComponent(repoId)}/labels`)
-            .then(response => response.data.map(label => label.name));
+            .then(response => response.data);
     };
 
     const buildMrUrl = (branch, targetBranch) => {

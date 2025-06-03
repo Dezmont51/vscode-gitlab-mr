@@ -111,7 +111,8 @@ button[type="button"]:hover {
 }
 
 .tag {
-    display: inline-block;
+    display: inline-flex;
+        align-items: center;
     background-color: var(--vscode-badge-background, #e0e0e0);
     color: var(--vscode-badge-foreground, #333333);
     border-radius: 12px;
@@ -121,6 +122,11 @@ button[type="button"]:hover {
     line-height: 16px;
     height: auto;
     cursor: pointer;
+    transition: opacity 0.2s;
+    }
+    
+    .tag:hover {
+        opacity: 0.9;
 }
 .tag button { /* x button inside tag */
     background: none;
@@ -130,7 +136,8 @@ button[type="button"]:hover {
     font-size: 12px;
     padding: 0;
     line-height: 12px;
-    color: var(--vscode-badge-foreground, #333333); /* Inherit color */
+    color: inherit;
+        /* Inherit color from parent */
 }
 .multi-select-wrapper {
     position: relative;
@@ -171,13 +178,25 @@ button[type="button"]:hover {
     color: var(--vscode-badge-foreground, #333333);
 }
 .option-item {
-    padding: 2px 0px;
+    padding: 5px 8px;
     display: flex;
     align-items: center;
+    border-radius: 4px;
+        margin: 2px 0;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    
+    .option-item:hover {
+        opacity: 0.9;
 }
 .option-item input[type="checkbox"] {
     margin-right: 5px;
     accent-color: var(--vscode-button-background);
+}
+.option-item label {
+    cursor: pointer;
+    flex: 1;
 }
 
 
@@ -207,7 +226,11 @@ button[type="button"]:hover {
 .options-list {
     border: 1px solid var(--vscode-editorWidget-border, #ccc); 
     background-color: var(--vscode-editorWidget-background, #f9f0ff); 
-    padding: 10px 3px;
+    padding: 10px;
+        border-radius: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 #selectedAssignees button { /* x button inside assignee tag */
     margin-top: 0px;
