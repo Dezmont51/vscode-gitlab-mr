@@ -2,18 +2,20 @@
 
 forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr
 
-VS Code extension for working with Gitlab Merge Requests, supporting both Gitlab.com and Gitlab EE/CE servers.
+Add UI interface for creating merge requests.
+
+Quickly search and select target branches, assignees, and automatically read tag lists in the UI interface.
 
 Only support old version of Gitlab (about 10.x to 14.x).
 
-Add UI interface for creating merge requests.
+Install from marketplace https://marketplace.visualstudio.com/items?itemName=JustLookAtNow.gitlab-mr-ui
 
 ## Features
 
 * Supports both Gitlab.com and Gitlab CE/EE servers.
 * Configurable default remote (e.g. `origin`) and branch (e.g. `master`).
 
-### Create MR
+### Create MR(UI)
 
 Create an MR from VS Code by providing a branch name and commit message.
 **Workflow**

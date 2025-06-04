@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2.0.1
+* Add: Add marketplace URL to readme.
+
 ## 2.0.0
 * Breaking: Added UI support for `Create MR`.
 

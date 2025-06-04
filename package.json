@@ -1,8 +1,8 @@
 {
     "name": "gitlab-mr-ui",
     "displayName": "Gitlab MR UI",
-    "description": "forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr",
-    "version": "2.0.0",
+    "description": "Quick create merge request with UI",
+    "version": "2.0.1",
     "publisher": "JustLookAtNow",
     "repository": {
         "type": "git",
