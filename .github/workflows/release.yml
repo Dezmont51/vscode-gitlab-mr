@@ -1,28 +1,68 @@
+name: 发布扩展
 
-name: Release
 on:
+  push:
+    tags:
+      - 'v*' # 当推送以v开头的tag时触发
   workflow_dispatch:
-  # release:
-  #   types: [prereleased, released]
+
+permissions:
+  contents: write
+
 jobs:
-  release:
-    name: package plugins
+  build-and-release:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.0
-        #with:
-          # Repository name with owner. For example, actions/checkout
-          # The branch, tag or SHA to checkout. When checking out the repository that triggered a workflow, this defaults to the reference or SHA for that event.  Otherwise, uses the default branch.
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4.0.4
+      - name: 检出代码
+        uses: actions/checkout@v3
+        
+      - name: 设置Node.js
+        uses: actions/setup-node@v3
         with:
-          # Version Spec of the version to use. Examples: 12.x, 10.15.1, >=10.15.0.
-          node-version: '20.x'
-      - name: Install Dependencies
+          node-version: '20'
+          
+      - name: 安装依赖
+        run: npm ci
+        
+      - name: 打包扩展
+        run: npx vsce package
+        
+      - name: 获取版本号
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        
+      - name: 读取版本Changelog
+        id: changelog
         run: |
-          npm install
-          npm i --save-dev esbuild
-          npm install -g @vscode/vsce
-          mkdir bin
-          vsce package -o ./bin/vscode-gitlab-mr.vsix
+          VERSION=${{ steps.get_version.outputs.VERSION }}
+          # 提取对应版本的Changelog内容
+          SECTION_START=$(grep -n "^## $VERSION" CHANGELOG.md | cut -d':' -f1)
+          NEXT_SECTION=$(tail -n +$((SECTION_START+1)) CHANGELOG.md | grep -n "^## " | head -1 | cut -d':' -f1)
+          if [ -z "$NEXT_SECTION" ]; then
+            # 如果是最后一个版本
+            CHANGELOG_CONTENT=$(tail -n +$((SECTION_START+1)) CHANGELOG.md)
+          else
+            # 如果不是最后一个版本
+            CHANGELOG_CONTENT=$(tail -n +$((SECTION_START+1)) CHANGELOG.md | head -n $((NEXT_SECTION-1)))
+          fi
+          # 转换为多行字符串
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG_CONTENT" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        
+      - name: 创建Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: v${{ steps.get_version.outputs.VERSION }}
+          body: ${{ steps.changelog.outputs.CHANGELOG }}
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') }}
+          files: "*.vsix"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: 发布到VSCode商店
+        if: ${{ !contains(github.ref, 'beta') }}
+        run: npx vsce publish -p ${{ secrets.VSCODE_PAT }}
