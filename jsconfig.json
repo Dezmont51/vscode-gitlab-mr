@@ -4,8 +4,16 @@
         "target": "es6",
         "lib": [
             "es6"
-        ]
+        ],
+        "checkJs": true,
+        "allowJs": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true
     },
+    "include": [
+        "src/**/*"
+    ],
     "exclude": [
         "node_modules"
     ]
