@@ -1,7 +1,7 @@
 {
     "name": "gitlab-mr-ui",
-    "displayName": "Gitlab MR",
-    "description": "Manage MRs in Gitlab from VS Code forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr",
+    "displayName": "Gitlab MR UI",
+    "description": "forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr",
     "version": "2.0.0",
     "publisher": "JustLookAtNow",
     "repository": {
