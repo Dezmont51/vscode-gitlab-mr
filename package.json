@@ -1,11 +1,11 @@
 {
-    "name": "gitlab-mr",
+    "name": "gitlab-mr-ui",
     "displayName": "Gitlab MR",
-    "description": "Manage MRs in Gitlab from VS Code",
+    "description": "Manage MRs in Gitlab from VS Code forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr",
     "version": "2.0.0",
-    "publisher": "jasonn-porch",
+    "publisher": "JustLookAtNow",
     "engines": {
-        "vscode": "^1.5.0"
+        "vscode": "^1.90.0"
     },
     "categories": [
         "Other"
@@ -123,7 +123,7 @@
         "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
         "vscode:prepublish": "npm run package",
         "package": "npm run copy-templates && npm run check-types && node esbuild.js --production",
-        "package-old": "vsce package -o ./bin/vscode-gitlab-mr.vsix --baseContentUrl https://gitlab.com/jasonnutter/vscode-gitlab-mr/tree/master --baseImagesUrl https://gitlab.com/jasonnutter/vscode-gitlab-mr/raw/master",
+        "package-vsix": "vsce package -o ./bin/vscode-gitlab-mr.vsix --baseContentUrl https://gitlab.com/jasonnutter/vscode-gitlab-mr/tree/master --baseImagesUrl https://gitlab.com/jasonnutter/vscode-gitlab-mr/raw/master",
         "copy-templates": "cpx \"src/templates/**/*\" \"dist/templates\""
     },
     "pre-commit": [

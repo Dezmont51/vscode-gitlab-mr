@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2.0.0
+* Breaking: Added UI support for `Create MR`.
+
 ## 1.4.3
 
 * Fixed: Ensure url module is used in `buildMrUrl`.
