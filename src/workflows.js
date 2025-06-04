@@ -153,7 +153,7 @@ const showCreateMRForm = async extensionUri => {
 
     const panel = vscode.window.createWebviewPanel(
         'createMR', // 视图型
-        '创建 Merge Request', // 标题
+        'Create Merge Request', // 标题
         ViewColumn.One, // 显示在编辑器的哪个面板
         getWebviewOptions(extensionUri) // Pass the options here
     );

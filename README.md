@@ -1,12 +1,12 @@
-# VS Code - Gitlab MR
+# VS Code - Gitlab MR UI
 
-fork from 
-
-https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr
+forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr
 
 VS Code extension for working with Gitlab Merge Requests, supporting both Gitlab.com and Gitlab EE/CE servers.
 
 Only support old version of Gitlab (about 10.x to 14.x).
+
+Add UI interface for creating merge requests.
 
 ## Features
 

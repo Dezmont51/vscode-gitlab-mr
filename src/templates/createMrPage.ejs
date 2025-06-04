@@ -1,42 +1,43 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'none'; script-src 'unsafe-inline' <%= webview.cspSource %>; style-src 'unsafe-inline' <%= webview.cspSource %> vscode-resource:; img-src 'self' data: <%= webview.cspSource %>;">
-    <title>创建 Merge Request</title>
+    <title>Create Merge Request</title>
     <link rel="stylesheet" type="text/css" href="<%= styleUri %>">
 </head>
 <body class="<%= vscodeTheme %>">
     <form id="mrForm">
-        <label for="branch">源分支:</label>
+        <label for="branch">Source Branch:</label>
         <input type="text" id="branch" name="branch" value="<%= currentBranch %>" required readonly>
 
-        <label for="targetBranch">目标分支:</label>
+        <label for="targetBranch">Target Branch:</label>
         <div class="autocomplete-wrapper">
-            <input type="text" id="targetBranch" name="targetBranch" value="<%= lastTargetBranch %>" required placeholder="选择或输入目标分支" autocomplete="off">
+            <input type="text" id="targetBranch" name="targetBranch" value="<%= lastTargetBranch %>" required
+                placeholder="Select or enter target branch" autocomplete="off">
             <div id="suggestions" class="suggestions" style="display: none;"></div>
         </div>
 
-        <label for="mrTitle">MR 标题:</label>
+        <label for="mrTitle">MR Title:</label>
         <input type="text" id="mrTitle" name="mrTitle" value="<%= lastCommitMessage %>" required>
 
-        <label for="description">描述:</label>
-        <textarea id="description" name="description" rows="4" placeholder="填写MR的描述..."></textarea>
+        <label for="description">Description:</label>
+        <textarea id="description" name="description" rows="4" placeholder="Enter the description for the MR..."></textarea>
 
         <div class="checkbox-group">
             <input type="checkbox" id="deleteSourceBranch" name="deleteSourceBranch" <%= removeSourceBranch ? 'checked' : '' %>>
-            <label class="checkbox-label" for="deleteSourceBranch">是否删除源分支</label>
+            <label class="checkbox-label" for="deleteSourceBranch">Delete source branch</label>
         </div>
 
         <div class="checkbox-group">
             <input type="checkbox" id="squashCommits" name="squashCommits">
-            <label class="checkbox-label" for="squashCommits">是否压缩提交</label>
+            <label class="checkbox-label" for="squashCommits">Squash commits</label>
         </div>
 
-        <label for="assignees">受让人:</label>
+        <label for="assignees">Assignees:</label>
         <div class="autocomplete-wrapper">
-            <input type="text" id="assignees" name="assignees" placeholder="输入用户名并选择" autocomplete="off">
+            <input type="text" id="assignees" name="assignees" placeholder="Enter username and select" autocomplete="off">
             <div id="assigneeSuggestions" class="suggestions" style="display: none;"></div>
         </div>
         <div id="selectedAssignees">
@@ -45,11 +46,11 @@
             <% }); %>
         </div>
 
-        <label for="labels">标签:</label>
+        <label for="labels">Labels:</label>
         <div class="multi-select-wrapper">
             <div class="custom-multi-select">
                 <div class="selected-options" id="selectedLabels" tabindex="0"> <% /* Made focusable */ %>
-                    <!-- 已选择的标签将显示在这里 -->
+                    <!-- Selected labels will be displayed here -->
                 </div>
                 <div class="options-list" id="labelOptions" style="display: none;">
                     <% storedLabels.forEach(label=> {
@@ -67,11 +68,11 @@
                     <% }); %>
                 </div>
             </div>
-            <button type="button" id="refreshLabels" class="refresh-button">刷新</button>
+            <button type="button" id="refreshLabels" class="refresh-button">Refresh</button>
         </div>
 
-        <button type="submit">提交</button>
-        <button type="button" onclick="cancel()">取消</button>
+        <button type="submit">Submit</button>
+        <button type="button" onclick="cancel()">Cancel</button>
     </form>
 
     <script>
