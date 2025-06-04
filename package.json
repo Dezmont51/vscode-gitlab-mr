@@ -4,6 +4,11 @@
     "description": "Manage MRs in Gitlab from VS Code forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr",
     "version": "2.0.0",
     "publisher": "JustLookAtNow",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/JustLookAtNow/vscode-gitlab-mr"
+    },
+    "icon": "img/gitlab-logo.png",
     "engines": {
         "vscode": "^1.90.0"
     },
@@ -151,10 +156,5 @@
         "opn": "^4.0.2",
         "simple-git": "^3.26.0",
         "ssh-parse": "^1.0.0"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://gitlab.com/jasonnutter/vscode-gitlab-mr"
-    },
-    "icon": "img/gitlab-logo.png"
+    }
 }
