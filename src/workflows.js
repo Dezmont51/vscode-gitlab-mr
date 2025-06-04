@@ -224,7 +224,7 @@ const handleRefreshLabels = async panel => {
 // 修改获取 Webview 内容的函数，添加分支的下拉菜单和预填充MR标题
 const getWebviewContent = (webview, extensionUri, branches, currentBranch, lastTargetBranch, lastCommitMessage, removeSourceBranch, lastAssignees = [], storedLabels = []) => {
     const templatePath = path.join(__dirname, 'templates', 'createMrPage.ejs');
-    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'src', 'templates', 'createMrPage.css'));
+    const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'dist', 'templates', 'createMrPage.css'));
     const template = fs.readFileSync(templatePath, 'utf-8');
     
     // Detect current VS Code theme
