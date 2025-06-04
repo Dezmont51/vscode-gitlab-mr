@@ -20,6 +20,8 @@ Create an MR from VS Code by providing a branch name and commit message.
 
 1. Open the command palette and select **Gitlab MR: Create MR**.
 2. Enjoy the UI！
+   ![image](https://github.com/user-attachments/assets/1a1460a3-7945-45c9-b4f5-d7d56e8ffaa3)
+
 
 ## more usage
 just go to https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr
