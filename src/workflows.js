@@ -131,7 +131,18 @@ const showCreateMRForm = async extensionUri => {
     
     // 获取所有远程分支名称
     const branchSummary = await git.listBranches(targetRemote);
-    const branches = Object.keys(branchSummary.branches).map(branch => branchSummary.branches[branch].name);
+    const branches = Object.values(branchSummary.branches).map(branchDetail => {
+        let name = branchDetail.name; // This is the full name like 'remotes/origin/master' or 'origin/master'
+        const remotePrefixWithRemotes = `remotes/${targetRemote}/`;
+        const remotePrefixWithoutRemotes = `${targetRemote}/`;
+
+        if (name.startsWith(remotePrefixWithRemotes)) {
+            name = name.substring(remotePrefixWithRemotes.length);
+        } else if (name.startsWith(remotePrefixWithoutRemotes)) {
+            name = name.substring(remotePrefixWithoutRemotes.length);
+        }
+        return name;
+    }).filter(name => name.length > 0 && name !== 'HEAD').sort(); // Filter out empty strings or HEAD, then sort
 
     // 获取前分支名称
     const currentBranch = await git.getCurrentBranch();
@@ -345,7 +356,8 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
     return gitlab.openMr(branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels)
         .then(mr => {
             // 更新配置中的 targetBranch
-            preferences.update('targetBranch', targetBranch, vscode.ConfigurationTarget.Workspace);
+            const folderSpecificPreferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE, workspaceFolder.uri);
+            folderSpecificPreferences.update('targetBranch', targetBranch, vscode.ConfigurationTarget.WorkspaceFolder);
 
             const successMessage = message(`MR !${mr.iid} 创建成功。`);
             const successButton = '打开 MR';
