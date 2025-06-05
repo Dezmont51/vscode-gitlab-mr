@@ -1,12 +1,20 @@
 # CHANGELOG
 
+## 2.1.0
+
+* Fixed: Target branch selection now correctly extracts remote branch names, handling both 'remotes/origin/master' and 'origin/master' formats to return just 'master'.
+* Enhanced: Improved branch list functionality to support filtering remote branches.
+
 ## 2.0.2
+
 * Add: Document config usage in README.
 
 ## 2.0.1
+
 * Add: marketplace URL to README.
 
 ## 2.0.0
+
 * Breaking: Added UI support for `Create MR`.
 
 ## 1.4.3
