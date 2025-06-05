@@ -1,7 +1,10 @@
 # CHANGELOG
 
+## 2.0.2
+* Add: Document config usage in README.
+
 ## 2.0.1
-* Add: Add marketplace URL to readme.
+* Add: marketplace URL to README.
 
 ## 2.0.0
 * Breaking: Added UI support for `Create MR`.
