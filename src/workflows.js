@@ -148,7 +148,7 @@ const showCreateMRForm = async extensionUri => {
     const currentBranch = await git.getCurrentBranch();
 
     // 获取上次使用的目标分支
-    const lastTargetBranch = preferences.get('targetBranch', 'master');
+    const lastTargetBranch = preferences.get('targetBranch', '');
 
     // 获取最后一次提交消息
     const lastCommitMessage = await git.lastCommitMessage();
@@ -273,7 +273,6 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
     const preferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
 
     const targetRemote = preferences.get('targetRemote', 'origin');
-    const autoCommitChanges = preferences.get('autoCommitChanges', false);
     const autoOpenMr = preferences.get('autoOpenMr', false);
     const openToEdit = preferences.get('openToEdit', false);
     
@@ -299,59 +298,46 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
         return showErrorMessage('Branch name must not contain spaces.');
     }
 
-    const { onMaster, cleanBranch } = await git.checkStatus(branch);
-
     if (branch === targetBranch) {
         return showErrorMessage(`Target branch name cannot be same with origin branch (${targetBranch}).`);
     }
 
     const buildStatus = vscode.window.setStatusBarMessage(message(`Building MR to ${targetBranch} from ${branch}...`));
-    
-    // If the branch is not clean, and autoCommitChanges is false,
-    // prompt user if they want to commit changes.
-    // Otherwise, commit changes.
-    const commitChanges = !cleanBranch && !autoCommitChanges ? (
-        await vscode.window.showQuickPick([
-            { label: 'Yes', value: true },
-            { label: 'No', value: false }
-        ], {
-            placeHolder: 'Commit current changes?',
-            ignoreFocusOut: true
-        })
-            .then(selection => selection && selection.value)
-    ) : true;
 
-    if (commitChanges === undefined) {
-        return;
-    }
+    try {
+        // Get all branches to check for remote branch existence
+        const allBranches = await git.listBranches();
+        const remoteBranchFullName = `remotes/${targetRemote}/${branch}`;
+        const remoteBranchShortName = `${targetRemote}/${branch}`;
 
-    // Build up chain of git commands to run
-    let gitPromises;
-    if (!onMaster) {
-        if (cleanBranch || !commitChanges) {
-            gitPromises = git.createBranch(branch)
-                .then(() => git.pushBranch(targetRemote, branch));
-        } else {
-            gitPromises = git.createBranch(branch)
-                .then(() => git.addFiles('./*'))
-                .then(() => git.commitFiles(mrTitle))
-                .then(() => git.pushBranch(targetRemote, branch));
+        const remoteBranchExists = Object.values(allBranches.branches).some(
+            b => b.name === remoteBranchFullName || b.name === remoteBranchShortName
+        );
+
+        if (!remoteBranchExists) {
+            const pushChoice = await vscode.window.showQuickPick([
+                { label: 'Yes', value: true },
+                { label: 'No', value: false }
+            ], {
+                placeHolder: `The branch '${branch}' does not exist on remote '${targetRemote}'. Do you want to push it?`,
+                ignoreFocusOut: true
+            });
+
+            if (!pushChoice || !pushChoice.value) {
+                // User selected 'No' or dismissed the dialog
+                buildStatus.dispose();
+                return;
+            }
+
+            // User selected 'Yes', push the branch
+            const pushStatus = vscode.window.setStatusBarMessage(message(`Pushing branch '${branch}'...`));
+            await git.pushBranch(targetRemote, branch);
+            pushStatus.dispose();
         }
-    } else {
-        if (cleanBranch || !commitChanges) {
-            gitPromises = git.pushBranch(targetRemote, branch);
-        } else {
-            gitPromises = git.addFiles('./*')
-                .then(() => git.commitFiles(mrTitle))
-                .then(() => git.pushBranch(targetRemote, branch));
-        }
+    } catch (err) {
+        buildStatus.dispose();
+        throw err;
     }
-
-    await gitPromises
-        .catch(err => {
-            buildStatus.dispose();
-            throw err;
-        });
 
     return gitlab.openMr(branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels)
         .then(mr => {

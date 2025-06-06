@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.1.1
+
+* Fixed: Addressed an issue where Merge Request creation would fail if the local branch did not exist on the remote repository.
+* Enhanced: Streamlined the MR creation workflow. The extension now prompts the user to push the branch if it's not found on the remote, providing a clearer and more predictable user experience instead of performing complex Git operations automatically.
+* Removed: The `cleanBranch` check and `autoCommitChanges` functionality to simplify the workflow.
+
 ## 2.1.0
 
 * Fixed: Target branch selection now correctly extracts remote branch names, handling both 'remotes/origin/master' and 'origin/master' formats to return just 'master'.

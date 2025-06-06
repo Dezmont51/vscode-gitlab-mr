@@ -2,7 +2,7 @@
     "name": "gitlab-mr-ui",
     "displayName": "Gitlab MR UI",
     "description": "Quick create merge request with UI",
-    "version": "2.1.0",
+    "version": "2.1.1",
     "publisher": "JustLookAtNow",
     "repository": {
         "type": "git",
@@ -61,7 +61,7 @@
             "properties": {
                 "gitlab-mr.accessTokens": {
                     "type": "object",
-                    "default": null,
+                    "default": "{}",
                     "description": "Key/value pairs of Gitlab Server URLs and Gitlab Access Tokens."
                 },
                 "gitlab-mr.accessToken": {
@@ -103,11 +103,6 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Open and edit newly created MRs in your browser."
-                },
-                "gitlab-mr.autoCommitChanges": {
-                    "type": "boolean",
-                    "default": false,
-                    "description": "Auto-commit current changes when creating an MR"
                 },
                 "gitlab-mr.projectLabels": {
                     "type": "array",
