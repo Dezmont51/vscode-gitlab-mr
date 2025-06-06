@@ -20,8 +20,9 @@ Install from marketplace https://marketplace.visualstudio.com/items?itemName=Jus
 Create an MR from VS Code by providing a branch name and commit message.
 **Workflow**
 
-1. Open the command palette and select **Gitlab MR: Create MR**.
-2. Enjoy the UI！
+1. Click the 'Create MR' icon in the Source Control (SCM) view's title bar.
+2. **Alternatively**, open the command palette and select **Gitlab MR: Create MR**.
+3. Enjoy the UI！
    ![image](https://github.com/user-attachments/assets/1a1460a3-7945-45c9-b4f5-d7d56e8ffaa3)
 
 ## Extension Settings
