@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.1.2
+
+* Added: A button to the Source Control Management (SCM) view for quick access to the 'Create MR' action.
+
 ## 2.1.1
 
 * Fixed: Addressed an issue where Merge Request creation would fail if the local branch did not exist on the remote repository.

@@ -2,7 +2,7 @@
     "name": "gitlab-mr-ui",
     "displayName": "Gitlab MR UI",
     "description": "Quick create merge request with UI",
-    "version": "2.1.1",
+    "version": "2.1.2",
     "publisher": "JustLookAtNow",
     "repository": {
         "type": "git",
@@ -21,7 +21,8 @@
         "commands": [
             {
                 "command": "extension.openMR",
-                "title": "Gitlab MR: Create MR"
+                "title": "Gitlab MR: Create MR",
+                "icon": "$(git-pull-request)"
             },
             {
                 "command": "extension.viewMR",
@@ -56,6 +57,15 @@
                 "when": "editorTextFocus"
             }
         ],
+        "menus": {
+            "scm/title": [
+                {
+                    "command": "extension.openMR",
+                    "when": "scmProvider == 'git'",
+                    "group": "navigation"
+                }
+            ]
+        },
         "configuration": {
             "title": "Gitlab MR",
             "properties": {
