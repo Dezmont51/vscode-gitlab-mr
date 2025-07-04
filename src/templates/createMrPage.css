@@ -16,7 +16,7 @@ form {
 }
 label {
     display: block;
-    margin-top: 15px;
+    margin-top: 10px;
     font-weight: bold;
     color: var(--vscode-editor-foreground, #333333);
 }
@@ -193,10 +193,13 @@ button[type="button"]:hover {
 .option-item input[type="checkbox"] {
     margin-right: 5px;
     accent-color: var(--vscode-button-background);
+    cursor: pointer;
 }
 .option-item label {
     cursor: pointer;
     flex: 1;
+    margin-top: 0px;
+        display: inline-block;
 }
 
 
@@ -280,31 +283,8 @@ label + .autocomplete-wrapper, label + input, label + textarea, label + .multi-s
     margin-top: 8px;
 }
 
-.autocomplete-wrapper + #selectedAssignees {
-    margin-top: 8px;
-}
-#selectedAssignees .tag + .tag {
-    margin-left: 5px;
-}
-
-#selectedLabels + .options-list {
-    margin-top: 5px;
-}
-form > button[type="submit"] {
-    margin-top: 25px; /* More space before main action buttons */
-}
-
-/* Specificity for remove buttons in tags to ensure color override */
-.tag button, #selectedAssignees button, #selectedLabels .tag button {
-    color: var(--vscode-badge-foreground, var(--vscode-button-secondaryForeground, #ffffff)); /* Fallback to button secondary if badge not specific enough */
-}
-.tag button:hover, #selectedAssignees button:hover, #selectedLabels .tag button:hover {
-    color: var(--vscode-errorForeground, #ff0000); /* Make 'x' more prominent on hover */
-}
-
-/* Style for the container of selected assignees */
 #selectedAssignees {
-    margin-top: 5px;
+    margin-top: 4px;
     padding: 5px;
     border: 1px solid transparent; /* Keep layout consistent, but no border unless focused/error */
     border-radius: 4px;
@@ -327,4 +307,16 @@ form > button[type="submit"] {
 .selected-options:focus, .tag:focus {
     outline: 1px solid var(--vscode-focusBorder, #007acc);
     outline-offset: -1px;
+}
+
+.color-box {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: 6px;
+}
+
+.autocomplete-wrapper+#selectedAssignees {
+    margin-top: 4px;
 }

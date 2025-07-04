@@ -59,7 +59,8 @@
                         const textColor = label.text_color || '#333333';
                         %>
                         <div class="option-item" data-value="<%= labelName %>"
-                            style="background-color: <%= labelColor %>; color: <%= textColor %>">
+                            data-color="<%= labelColor %>" data-text-color="<%= textColor %>">
+                                    <span class="color-box" style="background-color: <%= labelColor %>"></span>
                             <input type="checkbox" id="label-<%= labelName %>" name="labels" value="<%= labelName %>">
                             <label for="label-<%= labelName %>">
                                 <%= labelName %>
@@ -234,12 +235,13 @@
                     const optionItem = document.createElement('div');
                     optionItem.className = 'option-item';
                     optionItem.setAttribute('data-value', labelName);
-                    optionItem.style.backgroundColor = labelColor;
-                    optionItem.style.color = textColor;
+                    optionItem.setAttribute('data-color', labelColor);
+                    optionItem.setAttribute('data-text-color', textColor);
 
                     const checkboxId = 'label-' + labelName;
                     optionItem.innerHTML = `
                         <input type="checkbox" id="${checkboxId}" name="labels" value="${labelName}">
+                        <span class="color-box" style="background-color:${labelColor}"></span>
                         <label for="${checkboxId}">${labelName}</label>
                     `;
                     labelOptionsContainer.appendChild(optionItem);
@@ -277,14 +279,21 @@
             const checkbox = optionItem.querySelector('input[type="checkbox"]');
             if (!checkbox) return;
 
-            // 只允许点击checkbox或label文本切换选中状态，避免排序副作用
-            if (event.target === checkbox || event.target.tagName === 'LABEL' || event.target === optionItem) {
-                checkbox.checked = !checkbox.checked;
+            const clickedCheckbox = event.target === checkbox;
+            const clickedOthers = event.target.tagName === 'LABEL' || event.target === optionItem || event.target.classList.contains('color-box');
+
+            if (clickedCheckbox || clickedOthers) {
+                // 如果点击的是 label/color-box/整行，需要阻止默认的 label 行为，否则会双切换
+                if (!clickedCheckbox) {
+                    event.preventDefault();
+                    checkbox.checked = !checkbox.checked;
+                }
+
                 const labelValue = checkbox.value;
-                const labelColor = optionItem.style.backgroundColor || '#e0e0e0';
-                const textColor = optionItem.style.color || '#333333';
+                const labelColor = optionItem.getAttribute('data-color') || '#e0e0e0';
+                const textColor = optionItem.getAttribute('data-text-color') || '#333333';
+
                 if (checkbox.checked) {
-                    // 只添加一次
                     if (!selectedLabels.some(label => (typeof label === 'string' && label === labelValue) || (typeof label === 'object' && label.name === labelValue))) {
                         selectedLabels.push({ name: labelValue, color: labelColor, text_color: textColor });
                     }
@@ -306,8 +315,9 @@
                 const labelName = label.name || label; // Handle both string and object labels
                 const labelColor = label.color || '#e0e0e0';
                 const textColor = label.text_color || '#333333';
-                return `<span class="tag" tabindex="0" style="background-color: ${labelColor}; color: ${textColor}">
-                    ${labelName} <button type="button" data-value="${labelName}" style="color: ${textColor}">x</button>
+                return `<span class="tag" tabindex="0">
+                    <span class="color-box" style="background-color:${labelColor}"></span>
+                    ${labelName} <button type="button" data-value="${labelName}">x</button>
                 </span>`;
             }).join('');
             attachLabelRemoveHandlers();
