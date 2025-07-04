@@ -102,7 +102,7 @@ module.exports = workspaceFolderPath => {
      */
     const fetchRemote = (targetRemote, branchName) => gitContext.fetch(targetRemote, branchName);
 
-    const listBranches = async (targetRemote) => {
+    const listBranches = async targetRemote => {
         if (targetRemote) {
             const remoteBranchSummary = await gitContext.branch(['-r']); // Gets all remote branches
             const filteredBranchesObj = {};
@@ -125,7 +125,7 @@ module.exports = workspaceFolderPath => {
                 detached: remoteBranchSummary.detached,
                 current: remoteBranchSummary.current, // This will be the local current branch or null
                 all: filteredBranchesList,
-                branches: filteredBranchesObj,
+                branches: filteredBranchesObj
             };
         } else {
             // Original behavior: list local branches

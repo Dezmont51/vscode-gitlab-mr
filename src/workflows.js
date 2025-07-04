@@ -206,7 +206,7 @@ const handleFetchAssignees = async (query, panel) => {
     try {
         const users = await gitlab.searchUsers(query);
         panel.webview.postMessage({ command: 'provideAssignees', assignees: users });
-    } catch (error) {
+    } catch {
         panel.webview.postMessage({ command: 'provideAssignees', assignees: [] });
     }
 };
@@ -226,8 +226,8 @@ const handleRefreshLabels = async panel => {
         // 存储完整的标签对象到配置（包含颜色信息）
         await vscode.workspace.getConfiguration('gitlab-mr').update('projectLabels', labels, vscode.ConfigurationTarget.Workspace);
         panel.webview.postMessage({ command: 'provideLabels', labels });
-    } catch (error) {
-        console.error('Error fetching labels:', error);
+    } catch {
+        console.error('Error fetching labels:');
         panel.webview.postMessage({ command: 'provideLabels', labels: [] });
     }
 };
@@ -334,9 +334,8 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
             await git.pushBranch(targetRemote, branch);
             pushStatus.dispose();
         }
-    } catch (err) {
+    } catch {
         buildStatus.dispose();
-        throw err;
     }
 
     return gitlab.openMr(branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels)
