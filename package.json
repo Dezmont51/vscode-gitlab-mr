@@ -2,7 +2,7 @@
     "name": "gitlab-mr-ui",
     "displayName": "Gitlab MR UI",
     "description": "Quick create merge request with UI",
-    "version": "2.1.2",
+    "version": "2.2.0",
     "publisher": "JustLookAtNow",
     "repository": {
         "type": "git",

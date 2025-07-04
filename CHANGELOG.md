@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## 2.2.0
+
+* Enhanced: Revamped label selection UI.
+  * Label color now displayed via leading color square for better readability on any theme.
+  * Text/checkbox/cell alignment refined; minimal spacing between Assignees and Labels.
+  * Pointer cursor and full-row click support (checkbox, text, color square) for smoother interaction.
+* Fixed: Checkbox inside label item could not be toggled in previous versions.
+
 ## 2.1.2
 
 * Added: A button to the Source Control Management (SCM) view for quick access to the 'Create MR' action.
