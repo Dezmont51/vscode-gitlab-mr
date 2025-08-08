@@ -126,6 +126,7 @@ const showCreateMRForm = async extensionUri => {
 
     const workspaceFolderPath = workspaceFolder.uri.fsPath;
     const git = buildGitContext(workspaceFolderPath);
+    // 使用工作区文件夹作用域的配置，确保与写入时作用域一致
     const preferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
     const targetRemote = preferences.get('targetRemote', 'origin');
     
@@ -339,11 +340,11 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
     }
 
     return gitlab.openMr(branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels)
-        .then(mr => {
+        .then(async mr => {
             // 更新配置中的 targetBranch
             const folderSpecificPreferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE, workspaceFolder.uri);
-            folderSpecificPreferences.update('targetBranch', targetBranch, vscode.ConfigurationTarget.WorkspaceFolder);
-
+            await folderSpecificPreferences.update('targetBranch', targetBranch, vscode.ConfigurationTarget.Workspace);
+                         
             const successMessage = message(`MR !${mr.iid} 创建成功。`);
             const successButton = '打开 MR';
             const copyButton = '复制链接';
