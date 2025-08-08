@@ -10,7 +10,11 @@
 <body class="<%= vscodeTheme %>">
     <form id="mrForm">
         <label for="branch">Source Branch:</label>
-        <input type="text" id="branch" name="branch" value="<%= currentBranch %>" required readonly>
+        <div class="autocomplete-wrapper">
+            <input type="text" id="branch" name="branch" value="<%= currentBranch %>" required
+                placeholder="Select or enter source branch" autocomplete="off">
+            <div id="sourceSuggestions" class="suggestions" style="display: none;"></div>
+        </div>
 
         <label for="targetBranch">Target Branch:</label>
         <div class="autocomplete-wrapper">
@@ -86,6 +90,92 @@
 
         const targetBranchInput = document.getElementById('targetBranch');
         const suggestionsBox = document.getElementById('suggestions');
+        
+        // ---- Source branch autocomplete ----
+        const sourceBranchInput = document.getElementById('branch');
+        const sourceSuggestionsBox = document.getElementById('sourceSuggestions');
+
+        let sourceFocus = -1; // 独立的焦点索引
+
+        const showBranchSuggestions = (inputEl, boxEl, focusIndexRef) => {
+            const query = inputEl.value.trim().toLowerCase();
+            boxEl.innerHTML = '';
+            focusIndexRef.value = -1;
+            if (query.length === 0) {
+                boxEl.style.display = 'none';
+                return;
+            }
+            const filtered = branches.filter(b => fuzzyMatch(query, b));
+            if (filtered.length === 0) {
+                boxEl.style.display = 'none';
+                return;
+            }
+            filtered.forEach(b => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = b;
+                div.addEventListener('click', () => {
+                    inputEl.value = b;
+                    boxEl.style.display = 'none';
+                });
+                boxEl.appendChild(div);
+            });
+            boxEl.style.display = 'block';
+        };
+
+        sourceBranchInput.addEventListener('input', () => {
+            showBranchSuggestions(sourceBranchInput, sourceSuggestionsBox, { value: sourceFocus });
+        });
+
+        sourceBranchInput.addEventListener('keydown', e => {
+            const items = sourceSuggestionsBox.getElementsByClassName('suggestion-item');
+            if (e.key === 'ArrowDown') {
+                sourceFocus++;
+                addActive(items, 'source');
+                e.preventDefault();
+            } else if (e.key === 'ArrowUp') {
+                sourceFocus--;
+                addActive(items, 'source');
+                e.preventDefault();
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (sourceFocus > -1 && items[sourceFocus]) {
+                    items[sourceFocus].click();
+                }
+            }
+        });
+
+        function addActive(items, type = 'target') {
+            if (!items) return;
+            removeActive(items);
+            if (type === 'target') {
+                if (currentFocus >= items.length) currentFocus = 0;
+                if (currentFocus < 0) currentFocus = items.length - 1;
+                items[currentFocus].classList.add('active');
+                items[currentFocus].scrollIntoView({ block: 'nearest' });
+            } else {
+                if (sourceFocus >= items.length) sourceFocus = 0;
+                if (sourceFocus < 0) sourceFocus = items.length - 1;
+                items[sourceFocus].classList.add('active');
+                items[sourceFocus].scrollIntoView({ block: 'nearest' });
+            }
+        }
+        
+        function removeActive(items) {
+            for (let i = 0; i < items.length; i++) {
+                items[i].classList.remove('active');
+            }
+        }
+
+        // 点击页面其他区域时，隐藏两个建议框
+        document.addEventListener('click', function(event) {
+            if (!targetBranchInput.contains(event.target) && !suggestionsBox.contains(event.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+            if (!sourceBranchInput.contains(event.target) && !sourceSuggestionsBox.contains(event.target)) {
+                sourceSuggestionsBox.style.display = 'none';
+            }
+        });
         let currentFocus = -1;
 
         // 简单的模糊匹配函数
@@ -149,21 +239,7 @@
             }
         });
 
-        function addActive(items) {
-            if (!items) return false;
-            removeActive(items);
-            if (currentFocus >= items.length) currentFocus = 0;
-            if (currentFocus < 0) currentFocus = items.length - 1;
-            items[currentFocus].classList.add('active');
-            // 确保当前选中的项在视野内
-            items[currentFocus].scrollIntoView({ block: 'nearest' });
-        }
 
-        function removeActive(items) {
-            for (let i = 0; i < items.length; i++) {
-                items[i].classList.remove('active');
-            }
-        }
 
         // 点击页面其他地方隐藏建议列表
         document.addEventListener('click', function(event) {
