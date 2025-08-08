@@ -178,8 +178,13 @@ const showCreateMRForm = async extensionUri => {
         switch (message.command) {
             case 'submit':
                 const { branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels } = message;
-                await openMR(branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels);
-                panel.dispose();
+                openMR(branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels)
+                    .then(() => {
+                        panel.dispose();
+                    }).catch(() => {
+                        // 即使出错也关闭面板，防止悬挂
+                        panel.dispose();
+                    });
                 break;
             case 'fetchAssignees':
                 await handleFetchAssignees(message.query, panel);
@@ -358,8 +363,8 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
                 vscode.env.openExternal(vscode.Uri.parse(mrWebUrl));
                 return vscode.window.showInformationMessage(successMessage);
             }
-
-            return vscode.window.showInformationMessage(successMessage, successButton, copyButton).then(selected => {
+            buildStatus.dispose();
+            vscode.window.showInformationMessage(successMessage, successButton, copyButton).then(selected => {
                 switch (selected) {
                     case successButton:
                         vscode.env.openExternal(vscode.Uri.parse(mrWebUrl));
