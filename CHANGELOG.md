@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.3.0
+
+* Enhanced: Source branch field is now an autocomplete dropdown similar to target branch, prefilled with current branch.
+* Fixed: Webview panel now closes automatically after MR creation succeeds.
+* Fixed: Target branch selection is correctly remembered and prefilled.
+
 ## 2.2.0
 
 * Enhanced: Revamped label selection UI.
