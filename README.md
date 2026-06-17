@@ -48,6 +48,3 @@ The `MR` status bar button checks the current branch against `gitlab-mr.targetBr
 }
 ```
 
-## more usage
-
-Install from marketplace https://marketplace.visualstudio.com/items?itemName=JustLookAtNow.gitlab-mr-ui
