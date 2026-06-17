@@ -1,12 +1,14 @@
 # VS Code - Gitlab MR UI
 
-forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr
+forked from https://github.com/JustLookAtNow/vscode-gitlab-mr
 
 Add UI interface for creating merge requests.
 
 Quickly search and select target branches, assignees, and automatically read tag lists in the UI interface.
 
 Only support old version of Gitlab (about 10.x to 14.x).
+
+After installing or updating the extension, reload the VS Code window if the `MR` status bar button is not visible.
 
 ## Features
 
@@ -16,6 +18,7 @@ Only support old version of Gitlab (about 10.x to 14.x).
 ### Create MR(UI)
 
 Create an MR from VS Code by providing a branch name and commit message.
+The `MR` status bar button checks the current branch against `gitlab-mr.targetBranch`. If an open MR already exists, the button changes to show the MR number and offers to open it.
 
 **Workflow**
 
@@ -35,6 +38,7 @@ Create an MR from VS Code by providing a branch name and commit message.
 * `gitlab-mr.autoOpenMr`: Open newly created MRs in your browser.
 * `gitlab-mr.openToEdit`: Open and edit newly created MRs in your browser.
 * `gitlab-mr.removeSourceBranch`: When creating MRs, enable the option to remove the source branch after merging.
+* `gitlab-mr.showStatusBarButton`: Show the `MR` button in the VS Code status bar.
 
 ### Access Tokens Example
 

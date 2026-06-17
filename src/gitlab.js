@@ -52,6 +52,17 @@ module.exports = ({ url, token, repoId, repoHost, repoWebProtocol }) => {
             });
     };
 
+    const findOpenMr = (sourceBranch, targetBranch) => {
+        return gitlab.get(`/api/${apiVersion}/projects/${encodeURIComponent(repoId)}/merge_requests`, {
+            params: {
+                state: 'opened',
+                source_branch: sourceBranch,
+                target_branch: targetBranch
+            }
+        })
+            .then(response => response.data && response.data.length ? response.data[0] : null);
+    };
+
     // https://docs.gitlab.com/ee/api/users.html#for-normal-users
     const searchUsers = search => {
         return gitlab.get('/api/v4/users', { // 确保 API 版本一致
@@ -111,6 +122,7 @@ module.exports = ({ url, token, repoId, repoHost, repoWebProtocol }) => {
         getRepo,
         openMr,
         listMrs,
+        findOpenMr,
         editMr,
         buildMrUrl,
         buildExistMrUrl,
