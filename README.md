@@ -8,6 +8,8 @@ Quickly search and select target branches, assignees, and automatically read tag
 
 Only support old version of Gitlab (about 10.x to 14.x).
 
+After installing or updating the extension, reload the VS Code window if the `MR` status bar button is not visible.
+
 ## Features
 
 * Supports both Gitlab.com and Gitlab CE/EE servers.
@@ -35,6 +37,7 @@ Create an MR from VS Code by providing a branch name and commit message.
 * `gitlab-mr.autoOpenMr`: Open newly created MRs in your browser.
 * `gitlab-mr.openToEdit`: Open and edit newly created MRs in your browser.
 * `gitlab-mr.removeSourceBranch`: When creating MRs, enable the option to remove the source branch after merging.
+* `gitlab-mr.showStatusBarButton`: Show the `MR` button in the VS Code status bar.
 
 ### Access Tokens Example
 

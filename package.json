@@ -16,7 +16,9 @@
     "categories": [
         "Other"
     ],
-    "activationEvents": [],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
     "main": "./dist/extension.js",
     "contributes": {
         "commands": [
@@ -64,20 +66,6 @@
                     "command": "extension.openMR",
                     "when": "scmProvider == 'git'",
                     "group": "navigation"
-                }
-            ],
-            "scm/sourceControl": [
-                {
-                    "command": "extension.openMR",
-                    "when": "scmProvider == 'git'",
-                    "group": "navigation@0"
-                }
-            ],
-            "scm/repository": [
-                {
-                    "command": "extension.openMR",
-                    "when": "scmProvider == 'git'",
-                    "group": "1_header@0"
                 }
             ]
         },
@@ -133,6 +121,11 @@
                     "type": "array",
                     "default": [],
                     "description": "Stored labels for the project."
+                },
+                "gitlab-mr.showStatusBarButton": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Show the Gitlab MR status bar button. After installing or updating this extension, reload the VS Code window if the button is not visible."
                 }
             }
         }
