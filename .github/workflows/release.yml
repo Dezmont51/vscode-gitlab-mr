@@ -33,7 +33,9 @@ jobs:
         run: npm test
 
       - name: Package VSIX
-        run: npm run package-vsix
+        run: |
+          mkdir -p bin
+          npm run package-vsix
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
