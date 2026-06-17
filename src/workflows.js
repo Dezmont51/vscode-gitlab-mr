@@ -167,7 +167,7 @@ const showCreateMRForm = async extensionUri => {
 
     const panel = vscode.window.createWebviewPanel(
         'createMR', // 视图型
-        'Create Merge Request', // 标题
+        t('createMergeRequest'), // 标题
         ViewColumn.One, // 显示在编辑器的哪个面板
         getWebviewOptions(extensionUri) // Pass the options here
     );
@@ -271,7 +271,26 @@ const getWebviewContent = (webview, extensionUri, branches, currentBranch, lastT
         lastCommitMessage,
         removeSourceBranch,
         lastAssignees,
-        storedLabels
+        storedLabels,
+        ui: {
+            lang: vscode.env.language,
+            createMergeRequest: t('createMergeRequest'),
+            sourceBranch: t('sourceBranch'),
+            sourceBranchPlaceholder: t('sourceBranchPlaceholder'),
+            targetBranch: t('targetBranch'),
+            targetBranchPlaceholder: t('targetBranchPlaceholder'),
+            mrTitle: t('mrTitle'),
+            description: t('description'),
+            descriptionPlaceholder: t('descriptionPlaceholder'),
+            deleteSourceBranch: t('deleteSourceBranch'),
+            squashCommits: t('squashCommits'),
+            assignees: t('assignees'),
+            assigneesPlaceholder: t('assigneesPlaceholder'),
+            labels: t('labels'),
+            refresh: t('refresh'),
+            submit: t('submit'),
+            cancel: t('cancel')
+        }
     };
     return ejs.render(template, data);
 };

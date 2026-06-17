@@ -1,47 +1,47 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="<%= ui.lang %>">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy"
         content="default-src 'none'; script-src 'unsafe-inline' <%= webview.cspSource %>; style-src 'unsafe-inline' <%= webview.cspSource %> vscode-resource:; img-src 'self' data: <%= webview.cspSource %>;">
-    <title>Create Merge Request</title>
+    <title><%= ui.createMergeRequest %></title>
     <link rel="stylesheet" type="text/css" href="<%= styleUri %>">
 </head>
 <body class="<%= vscodeTheme %>">
     <form id="mrForm">
-        <label for="branch">Source Branch:</label>
+        <label for="branch"><%= ui.sourceBranch %></label>
         <div class="autocomplete-wrapper">
             <input type="text" id="branch" name="branch" value="<%= currentBranch %>" required
-                placeholder="Select or enter source branch" autocomplete="off">
+                placeholder="<%= ui.sourceBranchPlaceholder %>" autocomplete="off">
             <div id="sourceSuggestions" class="suggestions" style="display: none;"></div>
         </div>
 
-        <label for="targetBranch">Target Branch:</label>
+        <label for="targetBranch"><%= ui.targetBranch %></label>
         <div class="autocomplete-wrapper">
             <input type="text" id="targetBranch" name="targetBranch" value="<%= lastTargetBranch %>" required
-                placeholder="Select or enter target branch" autocomplete="off">
+                placeholder="<%= ui.targetBranchPlaceholder %>" autocomplete="off">
             <div id="suggestions" class="suggestions" style="display: none;"></div>
         </div>
 
-        <label for="mrTitle">MR Title:</label>
+        <label for="mrTitle"><%= ui.mrTitle %></label>
         <input type="text" id="mrTitle" name="mrTitle" value="<%= lastCommitMessage %>" required>
 
-        <label for="description">Description:</label>
-        <textarea id="description" name="description" rows="4" placeholder="Enter the description for the MR..."></textarea>
+        <label for="description"><%= ui.description %></label>
+        <textarea id="description" name="description" rows="4" placeholder="<%= ui.descriptionPlaceholder %>"></textarea>
 
         <div class="checkbox-group">
             <input type="checkbox" id="deleteSourceBranch" name="deleteSourceBranch" <%= removeSourceBranch ? 'checked' : '' %>>
-            <label class="checkbox-label" for="deleteSourceBranch">Delete source branch</label>
+            <label class="checkbox-label" for="deleteSourceBranch"><%= ui.deleteSourceBranch %></label>
         </div>
 
         <div class="checkbox-group">
             <input type="checkbox" id="squashCommits" name="squashCommits">
-            <label class="checkbox-label" for="squashCommits">Squash commits</label>
+            <label class="checkbox-label" for="squashCommits"><%= ui.squashCommits %></label>
         </div>
 
-        <label for="assignees">Assignees:</label>
+        <label for="assignees"><%= ui.assignees %></label>
         <div class="autocomplete-wrapper">
-            <input type="text" id="assignees" name="assignees" placeholder="Enter username and select" autocomplete="off">
+            <input type="text" id="assignees" name="assignees" placeholder="<%= ui.assigneesPlaceholder %>" autocomplete="off">
             <div id="assigneeSuggestions" class="suggestions" style="display: none;"></div>
         </div>
         <div id="selectedAssignees">
@@ -50,7 +50,7 @@
             <% }); %>
         </div>
 
-        <label for="labels">Labels:</label>
+        <label for="labels"><%= ui.labels %></label>
         <div class="multi-select-wrapper">
             <div class="custom-multi-select">
                 <div class="selected-options" id="selectedLabels" tabindex="0"> <% /* Made focusable */ %>
@@ -73,11 +73,11 @@
                     <% }); %>
                 </div>
             </div>
-            <button type="button" id="refreshLabels" class="refresh-button">Refresh</button>
+            <button type="button" id="refreshLabels" class="refresh-button"><%= ui.refresh %></button>
         </div>
 
-        <button type="submit">Submit</button>
-        <button type="button" onclick="cancel()">Cancel</button>
+        <button type="submit"><%= ui.submit %></button>
+        <button type="button" onclick="cancel()"><%= ui.cancel %></button>
     </form>
 
     <script>

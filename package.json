@@ -3,10 +3,10 @@
     "displayName": "Gitlab MR UI",
     "description": "Quick create merge request with UI",
     "version": "2.3.1",
-    "publisher": "JustLookAtNow",
+    "publisher": "Dezmont51",
     "repository": {
         "type": "git",
-        "url": "https://github.com/JustLookAtNow/vscode-gitlab-mr"
+        "url": "https://github.com/Dezmont51/vscode-gitlab-mr"
     },
     "icon": "img/gitlab-logo.png",
     "engines": {
@@ -130,7 +130,7 @@
         "watch:esbuild": "node esbuild.js --watch",
         "vscode:prepublish": "npm run package",
         "package": "npm run copy-templates && node esbuild.js --production",
-        "package-vsix": "vsce package -o ./bin/vscode-gitlab-mr.vsix --baseContentUrl https://gitlab.com/jasonnutter/vscode-gitlab-mr/tree/master --baseImagesUrl https://gitlab.com/jasonnutter/vscode-gitlab-mr/raw/master",
+        "package-vsix": "vsce package -o ./bin/vscode-gitlab-mr.vsix --baseContentUrl https://github.com/Dezmont51/vscode-gitlab-mr/tree/main --baseImagesUrl https://raw.githubusercontent.com/Dezmont51/vscode-gitlab-mr/main",
         "copy-templates": "cpx \"src/templates/**/*\" \"dist/templates\""
     },
     "pre-commit": [
