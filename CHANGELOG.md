@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## 2.3.2
+
+* Added: Status bar `MR` button for quick Merge Request creation.
+* Added: `gitlab-mr.showStatusBarButton` setting to show or hide the status bar button.
+* Added: Existing MR detection for the current source branch and configured target branch; the status bar button now shows the MR number and offers to open it when an open MR already exists.
+* Added: Periodic background refresh for the status bar MR state.
+* Added: Russian, English, and Chinese localization for MR creation messages and the create MR form.
+* Changed: Extension publisher and repository metadata now point to the Dezmont51 fork.
+* Changed: `forked from` now points to the upstream GitHub repository.
+* Added: GitHub release workflow that builds and uploads the VSIX file when a `v*` tag is pushed.
+
 ## 2.3.0
 
 * Enhanced: Source branch field is now an autocomplete dropdown similar to target branch, prefilled with current branch.
