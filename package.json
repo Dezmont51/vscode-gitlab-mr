@@ -8,6 +8,7 @@
         "type": "git",
         "url": "https://github.com/Dezmont51/vscode-gitlab-mr"
     },
+    "forkedFrom": "https://github.com/JustLookAtNow/vscode-gitlab-mr",
     "icon": "img/gitlab-logo.png",
     "engines": {
         "vscode": "^1.96.0"

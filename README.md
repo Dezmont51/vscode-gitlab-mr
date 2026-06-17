@@ -1,6 +1,6 @@
 # VS Code - Gitlab MR UI
 
-forked from https://marketplace.visualstudio.com/items?itemName=jasonn-porch.gitlab-mr
+forked from https://github.com/JustLookAtNow/vscode-gitlab-mr
 
 Add UI interface for creating merge requests.
 
