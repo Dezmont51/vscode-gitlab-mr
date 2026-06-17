@@ -71,8 +71,13 @@ const selectWorkspaceFolder = async () => {
     }
 };
 
-const buildGitlabContext = async workspaceFolderPath => {
-    const preferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
+const getWorkspacePreferences = workspaceFolder => {
+    return vscode.workspace.getConfiguration(CONFIG_NAMESPACE, workspaceFolder && workspaceFolder.uri);
+};
+
+const buildGitlabContext = async (workspaceFolderPath, options = {}) => {
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(workspaceFolderPath));
+    const preferences = getWorkspacePreferences(workspaceFolder);
     const targetRemote = preferences.get('targetRemote', 'origin');
 
     // Access tokens
@@ -95,6 +100,10 @@ const buildGitlabContext = async workspaceFolderPath => {
 
     // Token not set for repo host
     if (!accessToken) {
+        if (options.silent) {
+            throw new Error(`Gitlab access token is not configured for ${gitlabApiUrl}.`);
+        }
+
         return showAccessTokenErrorMessage(gitlabApiUrl);
     }
 
@@ -109,6 +118,76 @@ const buildGitlabContext = async workspaceFolderPath => {
 };
 
 const buildGitContext = workspaceFolderPath => gitActions(workspaceFolderPath);
+
+const getDefaultWorkspaceFolder = () => {
+    const activeEditor = vscode.window.activeTextEditor;
+
+    if (activeEditor) {
+        const activeWorkspaceFolder = vscode.workspace.getWorkspaceFolder(activeEditor.document.uri);
+
+        if (activeWorkspaceFolder) {
+            return activeWorkspaceFolder;
+        }
+    }
+
+    return vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders[0];
+};
+
+const getCurrentMRStatus = async (options = {}) => {
+    const workspaceFolder = getDefaultWorkspaceFolder();
+
+    if (!workspaceFolder) {
+        return { state: 'unavailable' };
+    }
+
+    try {
+        const workspaceFolderPath = workspaceFolder.uri.fsPath;
+        const preferences = getWorkspacePreferences(workspaceFolder);
+        const targetBranch = preferences.get('targetBranch', 'master');
+        const git = buildGitContext(workspaceFolderPath);
+        const branch = await git.getCurrentBranch();
+        const gitlab = await buildGitlabContext(workspaceFolderPath, options);
+        const mr = await gitlab.findOpenMr(branch, targetBranch);
+
+        return {
+            state: mr ? 'found' : 'none',
+            mr,
+            branch,
+            targetBranch
+        };
+    } catch (error) {
+        if (!options.silent) {
+            showErrorMessage(error.message);
+        }
+
+        return { state: 'unavailable', error };
+    }
+};
+
+const openCurrentMR = async (extensionUri, options = {}) => {
+    const status = await getCurrentMRStatus(options);
+
+    if (status.state !== 'found') {
+        return showCreateMRForm(extensionUri);
+    }
+
+    const openButton = t('openMr');
+    const createButton = t('createMergeRequest');
+    const selected = await vscode.window.showInformationMessage(
+        message(`MR !${status.mr.iid} already exists for ${status.branch} > ${status.targetBranch}.`),
+        openButton,
+        createButton
+    );
+
+    switch (selected) {
+        case openButton:
+            return vscode.env.openExternal(vscode.Uri.parse(status.mr.web_url));
+        case createButton:
+            return showCreateMRForm(extensionUri);
+        default:
+            return undefined;
+    }
+};
 
 // 引入必要的 VSCode 模块
 const { ViewColumn } = require('vscode');
@@ -129,7 +208,7 @@ const showCreateMRForm = async extensionUri => {
     const workspaceFolderPath = workspaceFolder.uri.fsPath;
     const git = buildGitContext(workspaceFolderPath);
     // 使用工作区文件夹作用域的配置，确保与写入时作用域一致
-    const preferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
+    const preferences = getWorkspacePreferences(workspaceFolder);
     const targetRemote = preferences.get('targetRemote', 'origin');
     
     // 获取所有远程分支名称
@@ -297,18 +376,16 @@ const getWebviewContent = (webview, extensionUri, branches, currentBranch, lastT
 
 // 修改 openMR 函数以处理 new parameters: assigneeIds 和 labels
 const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBranch, squashCommits, assigneeIds, labels) => {
-    const preferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
-
-    const targetRemote = preferences.get('targetRemote', 'origin');
-    const autoOpenMr = preferences.get('autoOpenMr', false);
-    const openToEdit = preferences.get('openToEdit', false);
-    
     // Pick workspace
     const workspaceFolder = await selectWorkspaceFolder();
     if (!workspaceFolder) {
         return;
     }
 
+    const preferences = getWorkspacePreferences(workspaceFolder);
+    const targetRemote = preferences.get('targetRemote', 'origin');
+    const autoOpenMr = preferences.get('autoOpenMr', false);
+    const openToEdit = preferences.get('openToEdit', false);
     const workspaceFolderPath = workspaceFolder.uri.fsPath;
 
     // Set git context
@@ -426,7 +503,8 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
 };
 
 const listMRs = async workspaceFolderPath => {
-    const preferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE);
+    const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(workspaceFolderPath));
+    const preferences = getWorkspacePreferences(workspaceFolder);
 
     const targetBranch = preferences.get('targetBranch', 'master');
 
@@ -654,6 +732,8 @@ module.exports = {
     checkoutMR: () => checkoutMR().catch(e => showErrorMessage(e.message)),
     // The caller (e.g., in extension.js) needs to pass context.extensionUri
     // Example: vscode.commands.registerCommand('extension.openMR', () => commands.openMR(context.extensionUri));
-    openMR: showCreateMRForm, 
+    openMR: showCreateMRForm,
+    openCurrentMR,
+    getCurrentMRStatus,
     editMR: () => editMR().catch(e => showErrorMessage(e.message))
 };

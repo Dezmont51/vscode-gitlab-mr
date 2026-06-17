@@ -18,6 +18,7 @@ After installing or updating the extension, reload the VS Code window if the `MR
 ### Create MR(UI)
 
 Create an MR from VS Code by providing a branch name and commit message.
+The `MR` status bar button checks the current branch against `gitlab-mr.targetBranch`. If an open MR already exists, the button changes to show the MR number and offers to open it.
 
 **Workflow**
 
