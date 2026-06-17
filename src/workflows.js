@@ -22,7 +22,9 @@ const getWebviewOptions = extensionUri => {
 const gitActions = require('./git');
 const gitlabActions = require('./gitlab');
 const gitUtils = require('./git-utils');
+const { createTranslator } = require('./i18n');
 
+const t = createTranslator(vscode.env.language);
 const message = msg => `Gitlab MR: ${msg}`;
 const ERROR_STATUS = message('Unable to create MR.');
 const STATUS_TIMEOUT = 10000;
@@ -350,9 +352,9 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
             const folderSpecificPreferences = vscode.workspace.getConfiguration(CONFIG_NAMESPACE, workspaceFolder.uri);
             await folderSpecificPreferences.update('targetBranch', targetBranch, vscode.ConfigurationTarget.Workspace);
                          
-            const successMessage = message(`MR !${mr.iid} 创建成功。`);
-            const successButton = '打开 MR';
-            const copyButton = '复制链接';
+            const successMessage = message(t('mrCreated', { iid: mr.iid }));
+            const successButton = t('openMr');
+            const copyButton = t('copyLink');
 
             buildStatus.dispose();
             vscode.window.setStatusBarMessage(successMessage, STATUS_TIMEOUT);
@@ -371,7 +373,7 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
                         break;
                     case copyButton:
                         vscode.env.clipboard.writeText(mr.web_url).then(() => {
-                            vscode.window.showInformationMessage(message('链接已复制到剪贴板'));
+                            vscode.window.showInformationMessage(message(t('linkCopied')));
                         });
                         break;
                 }
