@@ -2,7 +2,7 @@
     "name": "gitlab-mr-ui",
     "displayName": "Gitlab MR UI",
     "description": "Quick create merge request with UI",
-    "version": "2.3.1",
+    "version": "2.3.2",
     "publisher": "Dezmont51",
     "repository": {
         "type": "git",
@@ -64,6 +64,20 @@
                     "command": "extension.openMR",
                     "when": "scmProvider == 'git'",
                     "group": "navigation"
+                }
+            ],
+            "scm/sourceControl": [
+                {
+                    "command": "extension.openMR",
+                    "when": "scmProvider == 'git'",
+                    "group": "navigation@0"
+                }
+            ],
+            "scm/repository": [
+                {
+                    "command": "extension.openMR",
+                    "when": "scmProvider == 'git'",
+                    "group": "1_header@0"
                 }
             ]
         },
