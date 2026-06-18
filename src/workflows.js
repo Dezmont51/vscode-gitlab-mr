@@ -53,7 +53,14 @@ const showAccessTokenErrorMessage = gitlabApiUrl => {
     });
 };
 
+const hasWorkspaceFolders = () => Boolean(vscode.workspace.workspaceFolders && vscode.workspace.workspaceFolders.length);
+
 const selectWorkspaceFolder = async () => {
+    if (!hasWorkspaceFolders()) {
+        vscode.window.showErrorMessage(message('No workspace folder is open.'));
+        return undefined;
+    }
+
     if (vscode.workspace.workspaceFolders.length > 1) {
         const selected = await vscode.window.showQuickPick(vscode.workspace.workspaceFolders.map(folder => ({
             label: folder.name,
@@ -147,6 +154,10 @@ const getCurrentMRStatus = async (options = {}) => {
         const git = buildGitContext(workspaceFolderPath);
         const branch = await git.getCurrentBranch();
         const gitlab = await buildGitlabContext(workspaceFolderPath, options);
+        if (!gitlab) {
+            return { state: 'unavailable' };
+        }
+
         const mr = await gitlab.findOpenMr(branch, targetBranch);
 
         return {
@@ -168,6 +179,11 @@ const openCurrentMR = async (extensionUri, options = {}) => {
     const status = await getCurrentMRStatus(options);
 
     if (status.state !== 'found') {
+        if (!hasWorkspaceFolders()) {
+            vscode.window.showErrorMessage(message('No workspace folder is open.'));
+            return undefined;
+        }
+
         return showCreateMRForm(extensionUri);
     }
 
@@ -289,6 +305,9 @@ const handleFetchAssignees = async (query, panel) => {
 
     const workspaceFolderPath = workspaceFolder.uri.fsPath;
     const gitlab = await buildGitlabContext(workspaceFolderPath);
+    if (!gitlab) {
+        return;
+    }
 
     try {
         const users = await gitlab.searchUsers(query);
@@ -307,6 +326,9 @@ const handleRefreshLabels = async panel => {
 
     const workspaceFolderPath = workspaceFolder.uri.fsPath;
     const gitlab = await buildGitlabContext(workspaceFolderPath);
+    if (!gitlab) {
+        return;
+    }
 
     try {
         const labels = await gitlab.listLabels();
@@ -392,6 +414,9 @@ const openMR = async (branch, targetBranch, mrTitle, description, deleteSourceBr
     const git = buildGitContext(workspaceFolderPath);
 
     const gitlab = await buildGitlabContext(workspaceFolderPath);
+    if (!gitlab) {
+        return;
+    }
 
     // Validate branch name
     if (branch === '') {
@@ -509,6 +534,10 @@ const listMRs = async workspaceFolderPath => {
     const targetBranch = preferences.get('targetBranch', 'master');
 
     const gitlab = await buildGitlabContext(workspaceFolderPath);
+    if (!gitlab) {
+        return;
+    }
+
     const mrs = await gitlab.listMrs();
 
     const mrList = mrs.map(mr => {
@@ -645,6 +674,9 @@ const editMR = async () => {
     }
 
     const gitlab = await buildGitlabContext(workspaceFolderPath);
+    if (!gitlab) {
+        return;
+    }
 
     const editCommands = {
         editTitle: 'Edit title',

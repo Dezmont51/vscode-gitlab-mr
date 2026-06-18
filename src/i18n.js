@@ -89,7 +89,7 @@ const createTranslator = language => {
         const template = messages[key] || translations.en[key] || key;
 
         return template.replace(/\{(\w+)\}/g, (match, paramName) => {
-            return Object.prototype.hasOwnProperty.call(params, paramName) ? params[paramName] : match;
+            return params && Object.prototype.hasOwnProperty.call(params, paramName) ? params[paramName] : match;
         });
     };
 };
